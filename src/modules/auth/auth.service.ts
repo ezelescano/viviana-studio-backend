@@ -4,6 +4,8 @@ import { BadRequest, Unauthorized } from "../../errors/index.js";
 import { validateCredentials } from "../../utils/validationCredentials.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { Role } from "@prisma/client";
+import { RegisterDTO } from "./auth.dto.js";
 
 export const jwtLoginServ = async (
   email: string,
@@ -33,10 +35,11 @@ export const jwtLoginServ = async (
 };
 
 export const jwtRegisterServ = async (
-  email: string,
-  password: string,
+  data: RegisterDTO
 ): Promise<{ token: string }> => {
-  validateCredentials(email, password, role);
+
+  const { email, password, role } = data;
+  validateCredentials(email, password);
   const existingUSer = await prisma.account.findUnique({
     where: { email },
   });
@@ -49,7 +52,16 @@ export const jwtRegisterServ = async (
     data: {
         email,
         password: hashedPassword,
-        role: 
+        role: Role.EMPLOYEE
     }
   }) 
+  const token = jwt.sign(
+    {
+      id: result.id,
+      role: result.role,
+    },
+    JWT_SECRET!,
+    { expiresIn: "4h"}
+  );
+  return { token };
 };
