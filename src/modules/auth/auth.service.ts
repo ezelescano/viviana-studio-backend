@@ -5,12 +5,12 @@ import { validateCredentials } from "../../utils/validationCredentials.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Role } from "@prisma/client";
-import { RegisterDTO } from "./auth.dto.js";
+import { tokenBlacklist } from "../../utils/blackList.js";
 
-export const jwtLoginServ = async (
-  email: string,
-  password: string,
-): Promise<{ token: string }> => {
+
+// service for Login and register with JWT
+export async function jwtLoginServ(email: string,
+  password: string): Promise<{ token: string; }> {
   validateCredentials(email, password); // check the credentials
 
   const user = await prisma.account.findUnique({
@@ -28,17 +28,18 @@ export const jwtLoginServ = async (
       role: user.role,
     },
     JWT_SECRET!,
-    { expiresIn: "4h" },
+    { expiresIn: "4h" }
   );
 
   return { token };
-};
+}
 
 export const jwtRegisterServ = async (
-  data: RegisterDTO
+  email: string,
+  password: string,
+  role: string
 ): Promise<{ token: string }> => {
 
-  const { email, password, role } = data;
   validateCredentials(email, password);
   const existingUSer = await prisma.account.findUnique({
     where: { email },
@@ -63,5 +64,11 @@ export const jwtRegisterServ = async (
     JWT_SECRET!,
     { expiresIn: "4h"}
   );
+  console.log("termine el proceso de registro");
+  
   return { token };
+};
+
+export const logoutServ = async (token: string)=> {
+  tokenBlacklist.add(token);
 };
