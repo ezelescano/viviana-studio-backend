@@ -1,4 +1,4 @@
-import { Request, Response, Router,  } from "express";
+import { Router } from "express";
 import { jwtLogingCont, jwtRegisterCont, logoutCont } from "./auth.controller.js";
 
 const loginRouter = Router();
