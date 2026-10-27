@@ -5,7 +5,8 @@ import { HttpError } from "../../errors/HttpErrors.js";
 
 // controller for Login and register with JWT
 export const jwtLogingCont = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  console.log("Request body:", req.body); // Log the request body for debugging
+  const { email, password } = req.body ?? {};
 
   try {
     const user = await jwtLoginServ(email, password);
@@ -23,7 +24,7 @@ export const jwtLogingCont = async (req: Request, res: Response) => {
 
 export const jwtRegisterCont = async (req: Request, res: Response) => {
   
-  const { email, password, role} = req.body;
+  const { email, password, role } = req.body ?? {};
   
   try {
     const user = await jwtRegisterServ(email, password, role);
